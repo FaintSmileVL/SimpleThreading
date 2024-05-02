@@ -7,5 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="projectlombok.lombok" level="project" />
+    <orderEntry type="library" exported="" name="slf4j.api" level="project" />
+    <orderEntry type="library" exported="" name="slf4j.log4j12" level="project" />
   </component>
 </module>
