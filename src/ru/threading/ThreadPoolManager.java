@@ -37,6 +37,11 @@ public class ThreadPoolManager {
         this._executor.execute(this.wrap(r));
     }
 
+    public ScheduledFuture<?> schedule(Runnable r, long delay)
+    {
+        return _scheduledExecutor.schedule(wrap(r), delay, TimeUnit.MILLISECONDS);
+    }
+
     private long validate(long delay) {
         return Math.max(0, Math.min(MAX_DELAY, delay));
     }
