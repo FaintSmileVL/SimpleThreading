@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
  * @date : 02.05.2024
  * @time : 21:38
  */
-@Slf4j
 public abstract class RunnableImpl implements Runnable {
     public abstract void runImpl() throws Exception;
 
@@ -16,7 +15,7 @@ public abstract class RunnableImpl implements Runnable {
         try {
             this.runImpl();
         } catch (Throwable e) {
-            log.error("Exception: RunnableImpl.run(): " + e, e);
+            e.printStackTrace();
         }
     }
 }

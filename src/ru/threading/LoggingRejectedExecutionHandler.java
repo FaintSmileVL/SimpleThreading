@@ -11,7 +11,6 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @date : 02.05.2024
  * @time : 21:35
  */
-@Slf4j
 public class LoggingRejectedExecutionHandler implements RejectedExecutionHandler {
 
     @Override
@@ -19,6 +18,6 @@ public class LoggingRejectedExecutionHandler implements RejectedExecutionHandler
         if (executor.isShutdown()) {
             return;
         }
-        log.error(r + " from " + executor, (Throwable) new RejectedExecutionException());
+        (new RejectedExecutionException()).printStackTrace();
     }
 }
