@@ -13,41 +13,37 @@ public class ThreadPoolManager {
     @Getter(lazy = true)
     private static final ThreadPoolManager instance = new ThreadPoolManager();
     private static final long MAX_DELAY = TimeUnit.NANOSECONDS.toMillis(Long.MAX_VALUE - System.nanoTime()) / 2;
-    private ThreadPoolExecutor _executor = new ThreadPoolExecutor(2, 4, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-    private final ScheduledThreadPoolExecutor _scheduledExecutor = new ScheduledThreadPoolExecutor(4, new PriorityThreadFactory("ScheduledThreadPool", 5), new LoggingRejectedExecutionHandler());
-    private boolean _shutdown;
+    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 4, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    private final ScheduledThreadPoolExecutor scheduledExecutor = new ScheduledThreadPoolExecutor(4, new PriorityThreadFactory("ScheduledThreadPool", 5), new LoggingRejectedExecutionHandler());
+    @Getter private boolean shutdown;
 
     private ThreadPoolManager() {
         scheduleAtFixedRate(new RunnableImpl() {
 
             @Override
             public void runImpl() {
-                ThreadPoolManager.this._scheduledExecutor.purge();
-                ThreadPoolManager.this._executor.purge();
+                ThreadPoolManager.this.scheduledExecutor.purge();
+                ThreadPoolManager.this.executor.purge();
             }
         }, 300000, 300000);
     }
 
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable r, long initial, long delay) {
-        return this._scheduledExecutor.scheduleAtFixedRate(this.wrap(r), this.validate(initial), this.validate(delay), TimeUnit.MILLISECONDS);
+        return scheduledExecutor.scheduleAtFixedRate(this.wrap(r), this.validate(initial), this.validate(delay), TimeUnit.MILLISECONDS);
     }
 
     public void execute(Runnable r)
     {
-        this._executor.execute(this.wrap(r));
+        this.executor.execute(this.wrap(r));
     }
 
     public ScheduledFuture<?> schedule(Runnable r, long delay)
     {
-        return _scheduledExecutor.schedule(wrap(r), delay, TimeUnit.MILLISECONDS);
+        return scheduledExecutor.schedule(wrap(r), delay, TimeUnit.MILLISECONDS);
     }
 
     private long validate(long delay) {
         return Math.max(0, Math.min(MAX_DELAY, delay));
-    }
-
-    public boolean isShutdown() {
-        return this._shutdown;
     }
 
     public Runnable wrap(Runnable r) {
@@ -55,13 +51,13 @@ public class ThreadPoolManager {
     }
 
     public void shutdown() throws InterruptedException {
-        this._shutdown = true;
+        shutdown = true;
         try {
-            this._scheduledExecutor.shutdown();
-            this._scheduledExecutor.awaitTermination(10, TimeUnit.SECONDS);
+            scheduledExecutor.shutdown();
+            scheduledExecutor.awaitTermination(10, TimeUnit.SECONDS);
         } finally {
-            this._executor.shutdown();
-            this._executor.awaitTermination(1, TimeUnit.MINUTES);
+            executor.shutdown();
+            executor.awaitTermination(1, TimeUnit.MINUTES);
         }
     }
 }
