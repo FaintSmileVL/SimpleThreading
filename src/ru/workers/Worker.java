@@ -15,7 +15,7 @@ public abstract class Worker implements IWorker {
     @Getter protected long maxObject = 0;
     @Getter protected long minObject = 0;
     protected int id;
-    ScheduledFuture<?> worker;
+    protected ScheduledFuture<?> worker;
 
     @Override
     public int getId() {
