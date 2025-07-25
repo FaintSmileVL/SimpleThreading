@@ -60,7 +60,7 @@ public interface IParallelManager {
      *
      * @return non-null worker type
      */
-    IWorkerType getType();
+    String getType();
 
     /**
      * Gets all workers associated with this manager.

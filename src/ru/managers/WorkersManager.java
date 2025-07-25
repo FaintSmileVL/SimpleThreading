@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WorkersManager {
     @Getter(lazy = true)
     private static final WorkersManager instance = new WorkersManager();
-    private final Map<IWorkerType, Map<Integer, IWorker>> workers = new ConcurrentHashMap<>();    // managerType | <workerId | worker>
+    private final Map<String, Map<Integer, IWorker>> workers = new ConcurrentHashMap<>();    // managerType | <workerId | worker>
 
     /**
      * Initializes the WorkerManager with the specified set of worker types.
@@ -67,29 +67,21 @@ public class WorkersManager {
      *     PROCESSING_WORKER
      * }
      *
-     * // Initialize with all enum values
+     * <p>Initialize with all enum values</p>
      * workerManager.load(EnumSet.allOf(MyWorkerTypes.class));
      * }</pre>
      *
-     * @param workerTypes a set of worker type identifiers that implement {@link IWorkerType}.
+     * @param workerType a worker type identifier that implement {@link IWorkerType}.
      *                    Typically an enum implementing this interface.
-     * @throws IllegalArgumentException if workerTypes is null or empty
+     * @throws IllegalArgumentException if workerType is null or empty
      * @throws IllegalStateException if the manager is already initialized
      * @see IWorkerType
      */
-    public void load(Set<IWorkerType> workerTypes) {
-        Objects.requireNonNull(workerTypes, "Worker types set cannot be null");
-        if (workerTypes.isEmpty()) {
-            throw new IllegalArgumentException("At least one worker type must be specified");
-        }
-
-        log.info("Initializing WorkerManager with {} worker types", workerTypes.size());
-
-        for (IWorkerType type : workerTypes) {
-            workers.putIfAbsent(type, new ConcurrentHashMap<>());
-        }
-
-        log.info("WorkerManager successfully initialized with types: {}", workerTypes);
+    public void load(IWorkerType workerType) {
+        Objects.requireNonNull(workerType, "Worker type cannot be null");
+        log.info("Initializing WorkerManager with {} worker type", workerType.name());
+        workers.putIfAbsent(workerType.name(), new ConcurrentHashMap<>());
+        log.info("WorkerManager successfully initialized with type: {}", workerType.name());
     }
 
     /**
@@ -136,7 +128,7 @@ public class WorkersManager {
      */
     private Map<Integer, IWorker> getWorkerMap(IParallelManager manager) {
         Objects.requireNonNull(manager, "Manager cannot be null");
-        IWorkerType type = manager.getType();
+        var type = manager.getType();
         Map<Integer, IWorker> workerMap = workers.get(type);
         if (workerMap == null) {
             throw new NullPointerException("No workers registered for type: " + type);
@@ -171,7 +163,7 @@ public class WorkersManager {
         // Create new worker if none available
         int newWorkerId = workers.isEmpty() ? 0 : Collections.max(workers.keySet()) + 1;
         IWorker newWorker = manager.getFactory().createWorker(newWorkerId);
-        workers.put(newWorkerId, newWorker);
+        workers.put(Integer.valueOf(newWorkerId), newWorker);
         return newWorker;
     }
 }
